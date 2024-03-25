@@ -52,6 +52,19 @@ class ViewController: UIViewController {
 			make.width.equalTo(80)
 			make.height.equalTo(50)
 		}
+
+		// Create export button
+		let exportButton = UIButton(type: .system)
+		exportButton.setTitle("Export", for: .normal)
+		exportButton.addTarget(self, action: #selector(didTapExportButton), for: .touchUpInside)
+		view.addSubview(exportButton)
+
+		exportButton.snp.makeConstraints { make in
+			make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-50)
+			make.leading.equalToSuperview().offset(300)
+			make.width.equalTo(80)
+			make.height.equalTo(50)
+		}
 		playerLayer.player = player
 	}
 
@@ -68,6 +81,10 @@ class ViewController: UIViewController {
 
 	@objc func didTapStopButton() {
 		player?.pause()
+	}
+
+	@objc func didTapExportButton() {
+		composition.export()
 	}
 
 	// MARK: - Composition generator
@@ -130,6 +147,20 @@ class ViewController: UIViewController {
 			let audioMix = AVMutableAudioMix()
 			audioMix.inputParameters = audioParams
 			return (composition, audioMix)
+		}
+
+
+		func export() {
+			let (comp, mix) = generate()
+			let export = AVAssetExportSession(asset: comp, presetName: AVAssetExportPresetHighestQuality)
+			export?.audioMix = mix
+			export?.outputFileType = .mov
+			export?.outputURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("test.mov")
+
+			print(export?.outputURL)
+			export?.exportAsynchronously {
+
+			}
 		}
 	}
 }
